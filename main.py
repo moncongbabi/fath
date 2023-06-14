@@ -33,7 +33,7 @@ def send_telegram_message(message, chat_id, reply_to_message_id=None):
     return response.json()
 
 def calculate_lot_size(margin_balance, risk_percentage, sl_pips):
-    dollar_per_pips = 13
+    dollar_per_pips = 10
     risk_amount = margin_balance * risk_percentage / 100
     lot_size = round(risk_amount / (dollar_per_pips * sl_pips), 3)
     return lot_size
