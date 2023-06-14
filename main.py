@@ -1,13 +1,25 @@
 import pandas as pd
 import requests
-import ta
+import pandas_ta as ta
 from flask import Flask, request
 import os
+from dotenv import load_dotenv
+import json
+import subprocess
+
+load_dotenv()
 
 app = Flask(__name__)
 
-telegram_token = os.environ('TELEGRAM_TOKEN')
-oanda_token = os.environ('OANDA_TOKEN')
+telegram_token = 'os.environ['TELEGRAM_TOKEN']'
+oanda_token = os.environ['OANDA_TOKEN']
+
+def process_user_input(input_text):
+    # Run your desired logic here using the user input
+    # For example, you can run a shell command
+    result = subprocess.run([input_text], capture_output=True, text=True)
+
+    return result.stdout
 
 def send_telegram_message(message, chat_id, reply_to_message_id=None):
     url = f'https://api.telegram.org/bot{telegram_token}/sendMessage'
@@ -31,12 +43,13 @@ def calculate_indicators(data, lengths):
     indicators = {}
     for length in lengths:
         sma_column_name = f'SMA_{length}'
-        data[sma_column_name] = ta.trend.sma_indicator(data['close'], window=length)
+        data[sma_column_name] = ta.sma(data['close'], window=length)
         indicators[sma_column_name] = data[sma_column_name].iloc[-1]
 
         ema_column_name = f'EMA_{length}'
-        data[ema_column_name] = ta.trend.ema_indicator(data['close'], window=length)
+        data[ema_column_name] = ta.ema(data['close'], window=length)
         indicators[ema_column_name] = data[ema_column_name].iloc[-1]
+    print(indicators)
     return indicators
 
 def get_prices_from_list():
@@ -61,6 +74,7 @@ def get_prices_from_list():
         else:
             price_info = f"Failed to fetch price for symbol: {symbol}"
         prices.append(price_info)
+        print(prices)
     return prices
 
 def get_indicators(symbol, granularity):
@@ -81,6 +95,28 @@ def get_indicators(symbol, granularity):
             indicators = calculate_indicators(df, [5, 10, 14, 21, 34, 50, 100, 200])
             return indicators
     return None
+
+@app.route('/', methods=['GET'])
+def index():
+    return 'worked'
+
+@app.route('/command', methods=['GET', 'POST'])
+def command():
+    if request.method == 'POST':
+        # Get the user input from the 'input_text' form field
+        user_input = request.form['input_text']
+
+        # Process the user input (e.g., run a shell command)
+        result = process_user_input(user_input)
+
+        return result
+
+    return '''
+        <form method="POST">
+            <input type="text" name="input_text">
+            <input type="submit" value="Submit">
+        </form>
+    '''
 
 @app.route('/telegram-webhook', methods=['POST'])
 def telegram_webhook():
