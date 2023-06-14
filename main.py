@@ -11,7 +11,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-telegram_token = 'os.environ['TELEGRAM_TOKEN']'
+telegram_token = os.environ['TELEGRAM_TOKEN']
 oanda_token = os.environ['OANDA_TOKEN']
 
 def process_user_input(input_text):
