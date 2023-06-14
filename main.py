@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 telegram_token = os.environ['TELEGRAM_TOKEN']
 oanda_token = os.environ['OANDA_TOKEN']
-
+send_telegram_message("Bot deployed", '5739716302')
 def process_user_input(input_text):
     # Run your desired logic here using the user input
     # For example, you can run a shell command
